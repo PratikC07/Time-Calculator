@@ -1,0 +1,61 @@
+import re
+def add_time(start, duration, week=None):
+    # Split the time into hours, minutes, and seconds
+    start_hours, start_minutes, start_meridiem = re.split(r'[:\s]',start)
+
+    start_hours = int(start_hours)
+    start_minutes = int(start_minutes)
+    # Split the duration into hours, minutes, and seconds
+    duration_hours, duration_minutes = re.split(":",duration)
+
+    # Calculate the total number of minutes
+    if start_meridiem.lower() == 'pm' and start_hours != 12:
+      start_hours += 12
+    elif start_meridiem.lower() == 'am' and start_hours == 12:
+      start_hours = 0
+    
+    total_min = start_hours * 60 + start_minutes + int(duration_hours) * 60 + int(duration_minutes)
+
+    # Calculate the total number of hours
+    total_time = total_min/60.0
+    total_hour = int(total_time)
+  
+    new_min = int(round((total_time % int(total_time))*60))
+    if new_min == 60:
+      total_hour += 1
+      new_min = 0
+
+    new_hour = total_hour%12
+    if new_hour == 0:
+      new_hour = 12
+      
+    
+    days = total_min//1440
+    new_meri = (total_min/1440) % 1
+    if new_meri < 0.5:
+      new_meridiem = "AM"
+    else:
+      new_meridiem = "PM"
+    
+
+    
+    weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+  
+    if week is not None:
+      weekPos = weekDays.index(week.capitalize())
+      
+    if(days>0):
+      if(days==1):
+        if week != None:
+          return f"{new_hour}:{new_min:02} {new_meridiem}, {weekDays[(weekPos+1)%len(weekDays)]} (next day)"
+        return f"{new_hour}:{new_min:02} {new_meridiem} (next day)"
+      else:
+        if week != None:
+          return f"{new_hour}:{new_min:02} {new_meridiem}, {weekDays[(weekPos+days)%len(weekDays)]} ({days} days later)"
+        return f"{new_hour}:{new_min:02} {new_meridiem} ({days} days later)"
+    else:
+      if week != None:
+        return f"{new_hour}:{new_min:02} {new_meridiem}, {week.capitalize()}"
+      else:
+        new_time = f"{new_hour}:{new_min:02} {new_meridiem}"
+    return new_time
